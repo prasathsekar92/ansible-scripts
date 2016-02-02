@@ -1,0 +1,6 @@
+ - name: INSTALL HAPROXY
+   hosts: "{{hostname}}"
+   sudo: True
+
+   roles:
+      - { role: haproxy }

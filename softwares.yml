@@ -1,0 +1,14 @@
+ - name: INSTALL SOFTWARES
+   hosts: "{{hostname}}"
+   sudo: True
+
+   roles:
+     #- { role: haproxy }
+     #- { role: postgresql, postgresql_version: 9.5.0 }
+     #- { role: git }  
+     #- { role: ruby }
+     #- { role: apache, apache2_version: 2.4.7 }
+     #- { role: mysql, mysql_version: 5.0.45 }
+      - { role: nodejs, nodejs_version: v4.2.3 }
+     #- { role: nginx, nginx_version: 1.9.9 }
+     #- { role: php, php_version: 5.3.29 }

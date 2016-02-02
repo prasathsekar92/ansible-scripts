@@ -1,0 +1,23 @@
+---
+    - name: UPDATE
+      apt: update_cache=yes
+
+    - name: DEPENDENCIES
+      apt: name={{ item }}
+      with_items:
+
+          - libncurses5-dev
+          - zlib1g-dev
+
+    - name: DOWNLOADING UPDATED VERSION OF MYSQL
+      unarchive: src=http://dev.mysql.com/get/Downloads/MySQL-5.0/mysql-{{ mysql_version }}.tar.gz dest=/tmp/ copy=no
+
+    - name: TO CONFIGURE MySQL
+      shell: "{{ item }}"
+      args:
+        chdir: /tmp/mysql-{{ mysql_version }}
+      with_items:
+
+             - ./configure
+             - make
+             - make install

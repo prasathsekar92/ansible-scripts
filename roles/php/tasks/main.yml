@@ -1,0 +1,16 @@
+---
+    - name: UPDATE
+      apt: update_cache=yes
+
+    - name: DOWNLOADING UPDATED VERSION OF PHP 
+      unarchive: src=http://in1.php.net/distributions/php-{{ php_version }}.tar.bz2 dest=/tmp/ copy=no
+
+    - name: TO CONFIGURE PHP
+      shell: "{{ item }}"
+      args:
+        chdir: /tmp/php-{{ php_version }}
+      with_items:
+
+             - ./configure
+             - make
+             - make install

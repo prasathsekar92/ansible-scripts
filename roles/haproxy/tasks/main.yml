@@ -1,0 +1,23 @@
+---
+   - name: install updates
+     yum: name=* state=latest
+
+   - name: DEPENDENCIES
+     yum: name={{ item }}
+     with_items:
+
+          - libselinux-python
+
+   - name: install haproxy
+     yum: name=haproxy state=present
+     tags: haproxy
+
+   - name: configure haproxy.cfg file
+     template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+     notify: reload haproxy
+     tags: haproxy
+
+   - name: start haproxy
+     service: name=haproxy state=running
+     tags: haproxy
+# THIS HAPROXY CODE IS FOR CENTOS #

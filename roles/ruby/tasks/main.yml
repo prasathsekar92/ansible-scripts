@@ -1,0 +1,43 @@
+---
+    - name: UPDATE
+      apt: update_cache=yes
+
+    - name: DEPENDENCIES
+      apt: name={{ item }}
+      with_items:
+
+            - aptitude
+            - git-core 
+            - curl 
+            - zlib1g-dev 
+            - build-essential 
+            - libssl-dev 
+            - libreadline-dev 
+            - libyaml-dev 
+            - libsqlite3-dev 
+            - sqlite3 
+            - libxml2-dev 
+            - libxslt1-dev 
+            - libcurl4-openssl-dev 
+            - python-software-properties 
+            - libffi-dev
+            - libgdbm-dev 
+            - libncurses5-dev 
+            - automake 
+            - libtool 
+            - bison 
+            - libffi-dev
+
+    - name: DOWNLOADING UPDATED VERSION OF RUBY
+      unarchive: src=http://ftp.ruby-lang.org/pub/ruby/2.2/ruby-2.2.3.tar.gz dest=/tmp/ copy=no
+
+    - name: TO CONFIGURE RUBY
+      shell: "{{ item }}"
+      args:
+        chdir: /tmp/ruby-2.2.3
+      with_items:
+
+             - ./configure
+             - make
+             - sudo make install
+             - ruby -v

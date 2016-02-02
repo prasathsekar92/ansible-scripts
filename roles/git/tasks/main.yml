@@ -1,0 +1,10 @@
+---
+   - name: UPDATE
+     apt: update_cache=yes 
+
+   - name: INSTALL GIT
+     apt: name=git
+
+   - name: GIT CLONE
+     git: repo=https://github.com/geerlingguy/ansible-role-php.git dest=/tmp/ansible-role-php
+     sudo: true

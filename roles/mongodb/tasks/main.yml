@@ -1,0 +1,14 @@
+---
+    - name: UPDATE
+      apt: update_cache=yes
+
+    - name: CREATE DIRECTORY
+      file: path=/var/lib/mongo state=directory
+
+    - name: DOWNLOADING UPDATED VERSION OF MONGODB
+      unarchive: src=http://downloads.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1404-3.0.0-rc4.tgz?_ga=1.230921496.625503155.1446872958 dest=/tmp/ copy=no
+
+    - name: COPY NGINX CONFIGURATION FILE
+      copy:
+       src: /tmp/mongodb-linux-x86_64-ubuntu1404-3.0.0-rc4
+       dest: /var/lib/mongo

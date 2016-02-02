@@ -1,0 +1,106 @@
+ - name: configure haproxy.cfg file
+     template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+     notify: reload haproxy
+     tags: haproxy
+
+   - name: start haproxy
+     service: name=haproxy state=running
+     tags: haproxy
+# THIS HAPROXY CODE IS FOR CENTOS #
+vi to open the file in centos and q!”. This quits immediately without saving. To save first, enter command mode and type “:wq”, which saves (writes) and then quits.DEPENDENCIES:
+          - libncurses5-dev
+          - zlib1g-dev
+          - build-essential
+          - git
+          - libevent-dev
+          - nginx
+          - postgresql-server-dev-all
+          - python-dev
+          - python-setuptools
+          - redis-server
+          - postfix
+          - autotools-dev
+          - debhelper 
+          - dpkg-dev 
+          - gawk
+          - libapr1-dev 
+          - libaprutil1-dev 
+          - libcap-dev
+          - liblua5.2-dev
+          - libpcre3-dev
+          - libssl-dev 
+          - libxml2-dev
+          - lsb-release
+          - perl
+          - zlib1g-dev
+
+          vagrant init hfm4/freebsd-10.0
+
+
+- name: ENSURE THE POSTGRESQL SERVICE IS RUNNING
+      service: name=postgresql state=restarted enabled=yes
+      
+     - name: UPDATE pg_hba.conf FILE
+      template: src=pg_hba.conf.j2 dest=/etc/postgresql/9.3/main/pg_hba.conf
+
+    - name: UPDATE postgresql.conf FILE
+      template: src=postgresql.conf.j2 dest=/etc/postgresql/9.3/main/postgresql.conf
+
+    - name: CONFIGURE SYSTEM-WIDE USER TO CLUSTER MAPPING
+      template: src=user_clusters.j2 dest=/etc/postgresql-common/user_clusters 
+
+     - name: DOWNLOADING UPDATED VERSION OF POSTGRESQL
+      unarchive: src=https://ftp.postgresql.org/pub/source/v{{ postgresql_version }}/postgresql-{{ postgresql_version }}.tar.bz2 dest=/tmp/ copy=no
+
+    - name: TO CONFIGURE POSTGRESQL
+      shell: "{{ item }}"
+      args:
+        chdir: /tmp/postgresql-{{ postgresql_version }}
+      with_items:
+
+             - ./configure
+             - make
+             - make install
+
+       - name: PROVIDE USER WITH DB PERMISSIONS
+      sudo_user: postgres
+      postgresql_user: user=prasath db=app priv=ALL
+
+
+ - name: SETUP POSTGRESQL CLUSTER TO DEFAULT TO UTF-8 | STOP CLUSTER
+      sudo_user: postgres
+      shell: pg_dropcluster --stop 9.3 main
+
+    - name: SETUP POSTGRESQL CLUSTER TO DEFAULT TO UTF-8 | START CLUSTER
+      sudo_user: postgres
+      shell: pg_createcluster --start -e UTF-8 9.3 main
+
+    
+global
+        log 127.0.0.1   local0
+        log 127.0.0.1   local1 debug
+        maxconn   45000 # Total Max Connections.
+        daemon
+        nbproc      1 # Number of processing cores. 
+defaults
+        timeout server 86400000
+        timeout connect 86400000
+        timeout client 86400000
+        timeout queue   1000s
+        
+# [HTTP Site Configuration]
+listen  http_web 127.0.0.1:80
+        mode http
+        balance roundrobin  # Load Balancing algorithm
+        option httpchk
+        option forwardfor
+        server server1 127.0.0.1:80 weight 1 maxconn 512 check
+        server server2 127.0.0.1:80 weight 1 maxconn 512 check
+
+# [HTTPS Site Configuration]
+listen  https_web 127.0.0.1:443
+        mode tcp
+        balance source# Load Balancing algorithm
+        reqadd X-Forwarded-Proto:\ http
+        server server1 127.0.0.1:443 weight 1 maxconn 512 check
+        server server2 127.0.0.1:443 weight 1 maxconn 512 check
